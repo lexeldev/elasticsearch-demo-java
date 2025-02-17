@@ -1,0 +1,16 @@
+es:
+  config:
+    apiKey:
+    serverUrl:
+
+logging:
+  level:
+    co.elastic.clients: DEBUG
+    org.elasticsearch.client: DEBUG
+    org.springframework.web: DEBUG
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    url: /openapi.yaml

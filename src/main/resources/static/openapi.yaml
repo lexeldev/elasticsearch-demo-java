@@ -1,0 +1,219 @@
+openapi: 3.0.0
+info:
+  title: Product Service API
+  description: API to manage product documents in Elasticsearch.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api
+    description: Localhost server
+paths:
+  /products:
+    post:
+      summary: Create a new product document
+      description: Create a new document for a product in Elasticsearch.
+      operationId: createProduct
+      requestBody:
+        description: Product data including the index to create the product document.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRequest'
+      responses:
+        '200':
+          description: Product created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '500':
+          description: Internal Server Error
+
+  /products/{id}:
+    get:
+      summary: Get a product document by its ID.
+      description: Retrieve a product document from Elasticsearch by its ID.
+      operationId: getProduct
+      parameters:
+        - name: index
+          in: query
+          description: Index name where the product document exists.
+          required: true
+          schema:
+            type: string
+          example: "products"
+        - name: id
+          in: path
+          description: ID of the product document to retrieve.
+          required: true
+          schema:
+            type: string
+          example: "bk-1"
+      responses:
+        '200':
+          description: Product found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found.
+        '500':
+          description: Internal Server Error
+
+    delete:
+      summary: Delete a product document by its ID.
+      description: Delete a product document from Elasticsearch by its ID.
+      operationId: deleteProduct
+      parameters:
+        - name: index
+          in: query
+          description: Index name where the product document exists.
+          required: true
+          schema:
+            type: string
+          example: "products"
+        - name: id
+          in: path
+          description: ID of the product document to delete.
+          required: true
+          schema:
+            type: string
+          example: "bk-1"
+      responses:
+        '200':
+          description: Product deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+        '404':
+          description: Product not found.
+        '500':
+          description: Internal Server Error
+
+  /products/search:
+    get:
+      summary: Search products by name.
+      description: Search for products in Elasticsearch by matching the provided search text.
+      operationId: searchProducts
+      parameters:
+        - name: index
+          in: query
+          description: Index name to search products in.
+          required: true
+          schema:
+            type: string
+          example: "products"
+        - name: query
+          in: query
+          description: Text to search in the product name field.
+          required: true
+          schema:
+            type: string
+          example: "City Bike"
+      responses:
+        '200':
+          description: Search results.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+        '500':
+          description: Internal Server Error
+
+  /products/index:
+    delete:
+      summary: Delete an entire product index.
+      description: Delete the specified product index from Elasticsearch.
+      operationId: deleteIndex
+      parameters:
+        - name: index
+          in: query
+          description: The name of the index to delete.
+          required: true
+          schema:
+            type: string
+          example: "products"
+      responses:
+        '200':
+          description: Index deleted successfully.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteIndexResponse'
+        '404':
+          description: Index not found.
+        '500':
+          description: Internal Server Error
+
+components:
+  schemas:
+    ProductRequest:
+      type: object
+      properties:
+        index:
+          type: string
+          description: The name of the Elasticsearch index.
+          example: "products"
+        product:
+          $ref: '#/components/schemas/Product'
+      required:
+        - index
+        - product
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Product ID
+          example: "bk-1"
+        name:
+          type: string
+          description: Product name
+          example: "City Bike"
+        price:
+          type: number
+          format: double
+          description: Product price (as a number)
+          example: 123.0
+
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Product ID
+          example: "bk-1"
+        name:
+          type: string
+          description: Product name
+          example: "City Bike"
+        price:
+          type: number
+          format: double
+          description: Product price
+          example: 123.0
+        message:
+          type: string
+          description: Response message
+          example: "Product created successfully"
+
+    DeleteResponse:
+      type: object
+      properties:
+        result:
+          type: string
+          description: The result of the deletion operation (e.g., "deleted")
+          example: "deleted"
+
+    DeleteIndexResponse:
+      type: object
+      properties:
+        acknowledged:
+          type: boolean
+          description: Whether the index deletion was acknowledged.
+          example: true
